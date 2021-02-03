@@ -112,8 +112,7 @@ venv.bak/
 .utenti
 
 # Spyder project settings
-.spyderproject
-.spyproject
+.spyderproject.spyproject
 
 # Rope project settings
 .ropeproject
@@ -128,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# file personali
+.personal_board/
