@@ -130,3 +130,5 @@ dmypy.json
 
 # file personali
 .personal_board/
+.boards
+.cards
