@@ -68,25 +68,25 @@ class TrelloInternalManagmentBot:
             self.controll_change()
 
     def read_key(self):
-        with open(os.path.join(os.path.dirname(__file__), ".env"),'r') as json_file:
+        with open(os.path.join(os.path.dirname(__file__), ".env"), 'r') as json_file:
             self.key = json.load(json_file)
 
     def write_key(self):
-        with open(os.path.join(os.path.dirname(__file__), ".env"),'w') as json_file:
+        with open(os.path.join(os.path.dirname(__file__), ".env"), 'w') as json_file:
             json.dump(self.key,json_file,indent=4)
 
 
     def read_user(self):
-        with open(os.path.join(os.path.dirname(__file__), ".utenti"),'r') as json_file:
+        with open(os.path.join(os.path.dirname(__file__), ".utenti"), 'r') as json_file:
             self.user = json.load(json_file)
 
 
     def read_cards(self):
-        with open(os.path.join(os.path.dirname(__file__), ".cards"),'r') as json_file:
+        with open(os.path.join(os.path.dirname(__file__), ".cards"), 'r') as json_file:
             self.card_list = json.load(json_file)
 
     def write_cards(self):
-        with open(os.path.join(os.path.dirname(__file__), ".cards"),'w') as json_file:
+        with open(os.path.join(os.path.dirname(__file__), ".cards"), 'w') as json_file:
             json.dump(self.card_list,json_file,indent=4)
 
 

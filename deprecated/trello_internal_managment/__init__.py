@@ -1,4 +1,4 @@
-from trello_internal_managment.TrelloInternalManagmentBot import TrelloInternalManagmentBot
+from deprecated.trello_internal_managment.TrelloInternalManagmentBot import TrelloInternalManagmentBot
 
 
 def main():

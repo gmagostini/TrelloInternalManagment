@@ -1,4 +1,4 @@
-from harmless_test.HarmlessBot import TrelloInternalManagmentBot
+from deprecated.harmless_test import TrelloInternalManagmentBot
 
 
 def main():
