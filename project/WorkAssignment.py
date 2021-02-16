@@ -6,7 +6,6 @@ import time
 import requests
 import dateutil.parser
 import re
-
 condition = True
 
 
@@ -33,6 +32,7 @@ class WorkAssigment:
             self.check_managment()
             self.create_card()
             self.order_list()
+            self.check_clone_card_status()
 
             self.write_checklist()
             self.write_key()
@@ -99,7 +99,7 @@ class WorkAssigment:
                             for linea in trello_checklist['checkItems']:
                                 list[linea['id']] = {'name':linea['name'],'due':linea['due'],'member':linea['idMember'],'used':False}
                                 print(f"\t\t{linea['id']}\t{linea['name']}")
-                            self.checklist[trello_checklist['id']] = {"title" : trello_checklist['name'], 'urlCard':self.get_card_link(trello_checklist['idCard']), "element":list}
+                            self.checklist[trello_checklist['id']] = {"title" : trello_checklist['name'],'idCard':trello_checklist['idCard'], 'urlCard':self.get_card_link(trello_checklist['idCard']), "element":list}
                             #e in fine la salva
 
                     else: # se è gia stata salvata
@@ -107,7 +107,8 @@ class WorkAssigment:
                         for linea in trello_checklist['checkItems']:
                             if linea['id'] in self.checklist[trello_checklist['id']]['element'].keys():
 
-                                if linea['idMember'] != self.checklist[trello_checklist['id']]['element'][linea['id']]['member'] or linea['due'] != self.checklist[trello_checklist['id']]['element'][linea['id']]['due']:
+                                if (linea['idMember'] != self.checklist[trello_checklist['id']]['element'][linea['id']]['member'] or linea['due'] != self.checklist[trello_checklist['id']]['element'][linea['id']]['due'])\
+                                        and linea["state"] == "incomplete" :
                                     print(f"{linea['name']}:  "
                                         f"{linea['idMember']}\t {self.checklist[trello_checklist['id']]['element'][linea['id']]['member']} "
                                         f"\t {linea['idMember'] != self.checklist[trello_checklist['id']]['element'][linea['id']]['member']}\t"
@@ -162,7 +163,7 @@ class WorkAssigment:
 
     def check_managment(self):
         for member in self.key['id_board'].keys():
-            #if self.key['id_board'][member] == "5ee869db1e066a18aec6ba98":
+            #if self.key['id_board'][member] == "5ee869db1e066a18aec6ba98": #controllo
                 url = f"https://api.trello.com/1/boards/{self.key['id_board'][member]}/lists"
 
                 response = requests.request(
@@ -200,13 +201,13 @@ class WorkAssigment:
 
 
     def create_card(self):
-
+        print("[START] creating card")
         for key in self.checklist.keys():
             for element in self.checklist[key]['element'].keys():
                 try:
                     if self.checklist[key]['element'][element]['member'] != None:
                         if self.checklist[key]['element'][element]['used'] == False:
-                            #if self.checklist[key]['element'][element]['member'] == "5ed8067e73403d50623f87fd":
+                            # if self.checklist[key]['element'][element]['member'] == "5ed8067e73403d50623f87fd": #controllo
                                 url = f"https://api.trello.com/1/cards"
                                 query = {
                                     'key': self.key['api_key'],
@@ -248,7 +249,7 @@ class WorkAssigment:
                 except TypeError:
                     print("non va bene")
                     print(self.checklist[key]['element'])
-
+        print("[END] creating card")
     def convert_date(self,date):
         mesi = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosti", "Settembre",
                 "Ottobre", "Novembre", "Dicembre"]
@@ -327,7 +328,7 @@ class WorkAssigment:
                         params=query
                     )
 
-            print("[END] Sorting")
+        print("[END] Sorting")
 
     def chek_card_status(self,id_card):
         url = f"https://api.trello.com/1/cards/{id_card}"
@@ -351,3 +352,33 @@ class WorkAssigment:
 
         if response.__str__() == "<Response [200]>":
             return response.json()['closed']
+        else:
+            return response
+
+    def check_clone_card_status(self):
+        for checklist in self.checklist.keys():
+            for element in self.checklist[checklist]['element'].keys():
+                if self.checklist[checklist]['element'][element]['used'] == True:
+                    if self.checklist[checklist]['element'][element]['clone_id'] != None:
+                        if self.chek_card_status(self.checklist[checklist]['element'][element]['clone_id']):
+                            url = f"https://api.trello.com/1/cards/{self.checklist[checklist]['idCard']}/checklist/{checklist}/checkItem/{element}"
+
+                            headers = {
+                                "Accept": "application/json"
+                            }
+
+                            query = {
+                                'key': self.key['api_key'],
+                                'token': self.key['admin_token'],
+                                "state": "complete"
+                            }
+
+                            response = requests.request(
+                                "PUT",
+                                url,
+                                headers=headers,
+                                params=query
+                            )
+
+                            print(f"check_clone_card_status:\t {response}")
+                            self.checklist[checklist]['element'][element]['clone_id'] = None
