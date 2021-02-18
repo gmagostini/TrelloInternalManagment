@@ -213,7 +213,7 @@ class WorkAssigment:
                                     'key': self.key['api_key'],
                                     'token': self.key['admin_token'],
                                     'idList': self.key['id_list'][self.checklist[key]['element'][element]['member']],
-                                    'name' : f"[{self.convert_date(self.checklist[key]['element'][element]['due'])}] {self.checklist[key]['element'][element]['name']}",
+                                    'name' : f"[{self.convert_date(self.checklist[key]['element'][element]['due'])}] {self.checklist[key]['element'][element]['name']}: {self.name_card_from_id(self.checklist[key]['idCard'])}",
                                     'due' : self.checklist[key]['element'][element]['due']
                                 }
 
@@ -250,6 +250,8 @@ class WorkAssigment:
                     print("non va bene")
                     print(self.checklist[key]['element'])
         print("[END] creating card")
+
+
     def convert_date(self,date):
         mesi = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosti", "Settembre",
                 "Ottobre", "Novembre", "Dicembre"]
@@ -382,3 +384,27 @@ class WorkAssigment:
 
                             print(f"check_clone_card_status:\t {response}")
                             self.checklist[checklist]['element'][element]['clone_id'] = None
+
+    def name_card_from_id(self,id_card):
+        url = f"https://api.trello.com/1/cards/{id_card}"
+
+        headers = {
+            "Accept": "application/json"
+        }
+
+        query = {
+            'key': self.key['api_key'],
+            'token': self.key['admin_token']
+        }
+
+        response = requests.request(
+            "GET",
+            url,
+            headers=headers,
+            params=query
+        )
+
+        if response.__str__() == "<Response [200]>":
+            return response.json()['name']
+        else:
+            return ""
